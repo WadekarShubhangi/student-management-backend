@@ -7,7 +7,10 @@ const app = express();
 const { initializeDatabase } = require("./db/db.connection");
 const { Student } = require("./models/students.model");
 
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: "*"
+}));
 app.use(express.json());
 
 initializeDatabase();
@@ -25,28 +28,35 @@ app.get("/students", async (req, res) => {
   }
 });
 
-// app.post("/students", async (req, res) => {
-//   const { name, age, grade } = req.body;
-
-//   try {
-//     const student = new Student({ name, age, grade });
-//     await student.save();
-//     res.status(201).json(student);
-//   } catch (error) {
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
-
-
 app.post("/students", async (req, res) => {
+  const { name, age, gender, marks, attendance, grade } = req.body;
+
   try {
-    const student = new Student(req.body);
+    const student = new Student({
+      name,
+      age,
+      gender,
+      marks,
+      attendance,
+      grade,
+    });
+
     await student.save();
     res.status(201).json(student);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// app.post("/students", async (req, res) => {
+//   try {
+//     const student = new Student(req.body);
+//     await student.save();
+//     res.status(201).json(student);
+//   } catch (error) {
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 app.put("/students/:id", async (req, res) => {
   const studentId = req.params.id;
@@ -84,24 +94,43 @@ app.get("/students/:id", async (req, res) => {
   }
 });
 
+// app.delete("/students/:id", async (req, res) => {
+//   const studentId = req.params.id;
+
+//   try {
+//     const deletedStudent = await Student.findByIdAndRemove(studentId);
+
+//     if (!deletedStudent) {
+//       return res.status(404).json({ error: "Student not found" });
+//     }
+
+//     res
+//       .status(200)
+//       .json({
+//         message: "Student deleted successfully",
+//         student: deletedStudent,
+//       });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+
 app.delete("/students/:id", async (req, res) => {
   const studentId = req.params.id;
 
   try {
-    const deletedStudent = await Student.findByIdAndRemove(studentId);
+    const deletedStudent = await Student.findByIdAndDelete(studentId);
 
     if (!deletedStudent) {
       return res.status(404).json({ error: "Student not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Student deleted successfully",
-        student: deletedStudent,
-      });
+    res.status(200).json({
+      message: "Student deleted successfully",
+      student: deletedStudent,
+    });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
