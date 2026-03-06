@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -23,11 +25,22 @@ app.get("/students", async (req, res) => {
   }
 });
 
-app.post("/students", async (req, res) => {
-  const { name, age, grade } = req.body;
+// app.post("/students", async (req, res) => {
+//   const { name, age, grade } = req.body;
 
+//   try {
+//     const student = new Student({ name, age, grade });
+//     await student.save();
+//     res.status(201).json(student);
+//   } catch (error) {
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
+
+
+app.post("/students", async (req, res) => {
   try {
-    const student = new Student({ name, age, grade });
+    const student = new Student(req.body);
     await student.save();
     res.status(201).json(student);
   } catch (error) {
@@ -54,6 +67,20 @@ app.put("/students/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/students/:id", async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.id);
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json(student);
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
   }
 });
 
